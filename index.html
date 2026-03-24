@@ -7,19 +7,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+
+/* ── Dark theme (default) ── */
 :root{
   --bg:#0f1117;--bg2:#1a1d27;--bg3:#252831;--bg4:#2e3140;
   --border:#2a2d3a;--border2:#3a3d4a;
   --text:#e8e6df;--text2:#aaa;--text3:#666;--text4:#444;
   --green:#1D9E75;--green2:#0F6E56;--green3:#0f2d1e;--green4:#9FE1CB;
-  --amber:#EF9F27;--amber2:#BA7517;--amber3:#1a1400;
+  --amber:#EF9F27;--amber2:#BA7517;--amber3:#1e1500;
   --red:#E24B4A;--red2:#A32D2D;--red3:#1f0a0a;
   --blue:#378ADD;--blue3:#0a1a2f;
   --rad:12px;--rad2:8px;--rad3:6px;
+  --shadow:none;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── Light theme ── */
+[data-theme="light"]{
+  --bg:#f4f5f7;--bg2:#ffffff;--bg3:#f0f1f4;--bg4:#e8eaef;
+  --border:#dde0e8;--border2:#c8ccd6;
+  --text:#1a1d27;--text2:#4a4f63;--text3:#8a90a0;--text4:#b0b5c4;
+  --green:#0f7a58;--green2:#0a5c41;--green3:#e6f5ef;--green4:#0f7a58;
+  --amber:#c47d0a;--amber2:#a06508;--amber3:#fef8ec;
+  --red:#c0392b;--red2:#922b21;--red3:#fdecea;
+  --blue:#1a6bbf;--blue3:#eaf2fc;
+  --shadow:0 1px 4px rgba(0,0,0,0.07);
+}
+
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.2s,color 0.2s;}
 .app{display:flex;min-height:100vh;}
-.sidebar{width:260px;min-height:100vh;background:var(--bg2);border-right:0.5px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.sidebar{width:260px;min-height:100vh;background:var(--bg2);border-right:0.5px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:8px;flex-shrink:0;box-shadow:var(--shadow);}
 .main{flex:1;padding:1.5rem;overflow-y:auto;min-width:0;}
 .sidebar-greeting{font-size:0.82rem;color:var(--text2);padding:8px 6px 12px;border-bottom:0.5px solid var(--border);margin-bottom:4px;}
 .sidebar-header{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:4px 6px 8px;}
@@ -30,37 +46,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sidebar-btn.active .dot{background:var(--green);}
 .sidebar-btn .trk-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .sidebar-btn .trk-pct{font-size:0.68rem;color:var(--text3);}
-.add-trk-btn{margin-top:auto;background:var(--green3);border:0.5px solid var(--green);color:var(--green);font-size:0.8rem;padding:9px 12px;border-radius:var(--rad2);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;}
-.add-trk-btn:hover{background:#0f3d2a;}
-.mobile-bar{display:none;background:var(--bg2);border-bottom:0.5px solid var(--border);padding:0.75rem 1rem;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;gap:6px;}
+.add-trk-btn{background:var(--green3);border:0.5px solid var(--green);color:var(--green);font-size:0.8rem;padding:9px 12px;border-radius:var(--rad2);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;}
+.add-trk-btn:hover{opacity:0.85;}
+.clear-btn{background:none;border:none;color:var(--text4);font-size:0.65rem;cursor:pointer;padding:4px;text-align:center;}
+.clear-btn:hover{color:var(--red);}
+
+/* Theme toggle */
+.theme-toggle{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:var(--rad3);background:var(--bg3);border:0.5px solid var(--border);}
+.theme-toggle span{font-size:0.72rem;color:var(--text3);}
+.toggle-track{position:relative;width:34px;height:18px;background:var(--border2);border-radius:9px;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.toggle-track.on{background:var(--green);}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-track.on .toggle-thumb{transform:translateX(16px);}
+
+/* Mobile */
+.mobile-bar{display:none;background:var(--bg2);border-bottom:0.5px solid var(--border);padding:0.75rem 1rem;align-items:center;gap:10px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
 .mob-menu-btn{background:none;border:0.5px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:var(--rad3);cursor:pointer;font-size:0.78rem;}
-.mob-drawer{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;background:rgba(0,0,0,0.6);}
+.mob-drawer{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;background:rgba(0,0,0,0.5);}
 .mob-drawer.open{display:flex;}
 .mob-drawer-inner{width:280px;background:var(--bg2);height:100%;padding:1.5rem 1rem;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
 .mob-drawer-close{align-self:flex-end;background:none;border:0.5px solid var(--border2);color:var(--text2);padding:5px 10px;border-radius:var(--rad3);cursor:pointer;font-size:0.8rem;margin-bottom:8px;}
+
+/* Empty */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;text-align:center;}
 .empty-icon{width:64px;height:64px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
 .empty-state h2{font-size:1.2rem;font-weight:500;}
 .empty-state p{font-size:0.85rem;color:var(--text3);max-width:300px;line-height:1.6;}
+
+/* Buttons */
 .btn{border:none;border-radius:var(--rad2);cursor:pointer;font-size:0.82rem;font-weight:500;padding:8px 16px;transition:all 0.15s;}
 .btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green2);}
 .btn-red{background:var(--red3);border:0.5px solid var(--red);color:var(--red);}.btn-red:hover{background:var(--red2);color:#fff;}
 .btn-ghost{background:transparent;border:0.5px solid var(--border2);color:var(--text2);}.btn-ghost:hover{background:var(--bg3);}
-.btn-amber{background:var(--amber3);border:0.5px solid var(--amber);color:var(--amber);}
 .btn-sm{padding:5px 11px;font-size:0.75rem;}
 .btn-xs{padding:3px 8px;font-size:0.7rem;border-radius:4px;}
-.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rad);padding:1.25rem 1.5rem;margin-bottom:1rem;}
+
+/* Cards */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rad);padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow);}
 .card-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:1rem;}
+
+/* Stats */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;}
-.stat{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rad);padding:0.9rem 1rem;text-align:center;}
+.stat{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rad);padding:0.9rem 1rem;text-align:center;box-shadow:var(--shadow);}
 .stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:4px;}
 .stat-value{font-size:1.6rem;font-weight:600;}
 .stat-sub{font-size:0.65rem;color:var(--text3);margin-top:2px;}
-.green{color:var(--green);}.amber{color:var(--amber);}.red{color:var(--red);}.white{color:#fff;}
+.c-green{color:var(--green);}.c-amber{color:var(--amber);}.c-red{color:var(--red);}.c-text{color:var(--text);}
+
+/* Progress bar */
 .pbar-wrap{background:var(--bg3);border-radius:20px;height:28px;overflow:hidden;position:relative;}
 .pbar-fill{height:100%;border-radius:20px;transition:width 0.8s ease;}
 .pbar-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:500;color:var(--text2);}
 .bar-labels{display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text3);margin-top:5px;}
+
+/* Day grid */
 .grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(18px,1fr));gap:3px;}
 .day-sq{aspect-ratio:1;border-radius:2px;cursor:pointer;position:relative;transition:transform 0.1s;}
 .day-sq:hover{transform:scale(1.3);z-index:2;}
@@ -68,45 +108,65 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .day-sq.missed{background:var(--red);}
 .day-sq.today{background:var(--amber);outline:2px solid var(--amber2);}
 .day-sq.pending{background:var(--bg3);border:0.5px solid var(--border2);}
-.day-sq.future{background:var(--bg2);border:0.5px solid var(--border);}
+.day-sq.future{background:var(--bg3);border:0.5px solid var(--border);}
 .day-sq.selected{outline:2px solid var(--blue);}
 .grid-legend{display:flex;gap:14px;font-size:0.68rem;color:var(--text3);margin-top:10px;flex-wrap:wrap;}
 .grid-legend span{display:flex;align-items:center;gap:5px;}
 .leg-sq{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+/* Streaks */
 .streak-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
-.streak-badge{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:0.75rem;display:flex;align-items:center;gap:6px;}
+.streak-badge{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:0.75rem;display:flex;align-items:center;gap:6px;}
 .streak-badge .sb-dot{width:7px;height:7px;border-radius:50%;}
-.awaiting-banner{background:var(--amber3);border:0.5px solid var(--amber);border-radius:var(--rad2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:1rem;cursor:pointer;transition:background 0.15s;}
-.awaiting-banner:hover{background:#2a1e00;}
+
+/* Awaiting */
+.awaiting-banner{background:var(--amber3);border:0.5px solid var(--amber);border-radius:var(--rad2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:1rem;cursor:pointer;transition:opacity 0.15s;}
+.awaiting-banner:hover{opacity:0.85;}
 .awaiting-banner p{font-size:0.82rem;color:var(--amber);flex:1;}
 .awaiting-banner span{font-size:0.7rem;color:var(--amber2);}
+
+/* Tracker header */
 .trk-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:12px;}
 .trk-title-block h1{font-size:1.3rem;font-weight:600;margin-bottom:3px;}
 .trk-title-block p{font-size:0.8rem;color:var(--text3);}
-.trk-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:1rem;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad);padding:1.5rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad);padding:1.5rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
 .modal h2{font-size:1rem;font-weight:500;margin-bottom:1.25rem;}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem;}
+
+/* Forms */
 .form-group{margin-bottom:1rem;}
 label{font-size:0.75rem;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
 input[type=text],input[type=date],input[type=number],textarea,select{background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--rad2);color:var(--text);padding:8px 12px;font-size:0.85rem;width:100%;outline:none;transition:border-color 0.15s;font-family:inherit;}
 input:focus,textarea:focus,select:focus{border-color:var(--green);}
 textarea{resize:vertical;min-height:70px;}
-.tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:0.65rem;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;}
+
+/* Tooltip */
+.tip{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:0.65rem;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;}
 .day-sq:hover .tip{opacity:1;}
+
+/* Bulk */
 .bulk-toolbar{background:var(--blue3);border:0.5px solid var(--blue);border-radius:var(--rad2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;}
 .bulk-toolbar p{font-size:0.82rem;color:var(--blue);flex:1;}
+
+/* Charts */
 .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;}
 .weeks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;}
-.week-box{background:var(--bg3);border-radius:var(--rad3);padding:8px 10px;font-size:0.7rem;}
+.week-box{background:var(--bg3);border-radius:var(--rad3);padding:8px 10px;font-size:0.7rem;border:0.5px solid var(--border);}
 .week-label{color:var(--text3);margin-bottom:4px;}
 .week-bar-wrap{background:var(--bg2);border-radius:4px;height:4px;overflow:hidden;}
 .week-bar-fill{height:100%;border-radius:4px;}
+
+/* Edit panel */
 .edit-panel{background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--rad2);padding:1rem;margin-bottom:1rem;display:none;}
 .edit-panel.open{display:block;}
+
+/* Disclaimer */
 .disclaimer{text-align:center;font-size:0.6rem;color:var(--text4);padding:1.5rem 1rem 1rem;line-height:1.7;border-top:0.5px solid var(--border);margin-top:1rem;}
+
 @media(max-width:768px){
   .sidebar{display:none;}
   .mobile-bar{display:flex;}
@@ -123,8 +183,16 @@ textarea{resize:vertical;min-height:70px;}
     <div class="sidebar-greeting" id="sidebar-greeting"></div>
     <div class="sidebar-header">My Trackers</div>
     <div id="sidebar-list"></div>
-    <button class="add-trk-btn" onclick="openCreateModal()">+ New Tracker</button>
-    <button onclick="openResetModal()" style="background:none;border:none;color:var(--text4);font-size:0.65rem;cursor:pointer;padding:6px;text-align:center;margin-top:4px;">🗑 Clear all data</button>
+    <div class="sidebar-bottom">
+      <button class="add-trk-btn" onclick="openCreateModal()">+ New Tracker</button>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-label">Dark mode</span>
+        <div class="toggle-track" id="theme-track">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <button class="clear-btn" onclick="openResetModal()">🗑 Clear all data</button>
+    </div>
   </aside>
   <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
     <div class="mobile-bar" id="mobile-bar">
@@ -132,6 +200,7 @@ textarea{resize:vertical;min-height:70px;}
         <div id="mob-greeting" style="font-size:0.7rem;color:var(--text3);"></div>
         <h2 id="mob-title" style="font-size:1rem;font-weight:500;">Habit Tracker</h2>
       </div>
+      <button onclick="toggleTheme()" class="mob-menu-btn" id="mob-theme-btn">☀ Light</button>
       <button class="mob-menu-btn" onclick="openDrawer()">Trackers ☰</button>
     </div>
     <div class="main" id="main-content"></div>
@@ -144,8 +213,10 @@ textarea{resize:vertical;min-height:70px;}
     <button class="mob-drawer-close" onclick="closeDrawer()">✕ Close</button>
     <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:0 6px 8px;">My Trackers</div>
     <div id="drawer-list"></div>
-    <button class="add-trk-btn" style="margin-top:1rem;" onclick="openCreateModal();closeDrawer()">+ New Tracker</button>
-    <button onclick="openResetModal();closeDrawer()" style="background:none;border:none;color:var(--text4);font-size:0.65rem;cursor:pointer;padding:6px;text-align:center;margin-top:4px;">🗑 Clear all data</button>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:1rem;">
+      <button class="add-trk-btn" onclick="openCreateModal();closeDrawer()">+ New Tracker</button>
+      <button class="clear-btn" onclick="openResetModal();closeDrawer()">🗑 Clear all data</button>
+    </div>
   </div>
 </div>
 
@@ -204,12 +275,12 @@ textarea{resize:vertical;min-height:70px;}
   </div>
 </div>
 
-<!-- Reset all data modal -->
+<!-- Reset modal -->
 <div class="modal-overlay" id="reset-modal">
   <div class="modal">
     <h2>Clear all data?</h2>
     <p style="font-size:0.85rem;color:var(--text2);line-height:1.7;margin-bottom:0.5rem;">This will permanently delete <strong style="color:var(--red)">everything</strong> — your name, all trackers, and all logged days.</p>
-    <p style="font-size:0.82rem;color:var(--text3);line-height:1.6;">The page will reload and you'll start fresh as a new user. <strong>This cannot be undone.</strong></p>
+    <p style="font-size:0.82rem;color:var(--text3);line-height:1.6;">The page will reload and you'll start fresh. <strong>This cannot be undone.</strong></p>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('reset-modal')">Cancel</button>
       <button class="btn btn-red" onclick="confirmReset()">Yes, delete everything</button>
@@ -230,16 +301,17 @@ textarea{resize:vertical;min-height:70px;}
 </div>
 
 <script>
-const LS_KEY  = 'habitTrackers_v2';
-const LS_NAME = 'habitTracker_userName';
+const LS_KEY   = 'habitTrackers_v2';
+const LS_NAME  = 'habitTracker_userName';
+const LS_THEME = 'habitTracker_theme';
 let state = { trackers: [], activeId: null };
 let donutChart = null;
-let editingId = null;
-let bulkMode = false;
-let bulkSelected = [];
+let editingId  = null;
+let bulkMode   = false;
+let bulkSelected  = [];
 let awaitingDates = [];
 
-/* ---- Storage ---- */
+/* ── Storage ── */
 function loadState() {
   try { const d = localStorage.getItem(LS_KEY); if (d) state = JSON.parse(d); } catch(e){}
   if (!state.trackers) state.trackers = [];
@@ -248,22 +320,43 @@ function saveState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 function getUserName() { return localStorage.getItem(LS_NAME) || ''; }
 function setUserName(n) { localStorage.setItem(LS_NAME, n); }
 
-/* ---- Date helpers ---- */
+/* ── Theme ── */
+function getTheme() { return localStorage.getItem(LS_THEME) || 'dark'; }
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : '');
+  localStorage.setItem(LS_THEME, t);
+  const track = document.getElementById('theme-track');
+  const label = document.getElementById('theme-label');
+  const mobBtn = document.getElementById('mob-theme-btn');
+  if (t === 'light') {
+    track && track.classList.add('on');
+    if (label) label.textContent = 'Light mode';
+    if (mobBtn) mobBtn.textContent = '🌙 Dark';
+  } else {
+    track && track.classList.remove('on');
+    if (label) label.textContent = 'Dark mode';
+    if (mobBtn) mobBtn.textContent = '☀ Light';
+  }
+}
+function toggleTheme() {
+  const next = getTheme() === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+}
+
+/* ── Date helpers ── */
 function today() { return new Date().toISOString().split('T')[0]; }
-function toDate(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function toDate(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); }
 function addDays(s, n) {
   const [y,m,d] = s.split('-').map(Number);
-  const dt = new Date(y, m-1, d);
-  dt.setDate(dt.getDate() + n);
-  const yy = dt.getFullYear();
-  const mm = String(dt.getMonth()+1).padStart(2,'0');
-  const dd = String(dt.getDate()).padStart(2,'0');
-  return yy+'-'+mm+'-'+dd;
+  const dt = new Date(y,m-1,d);
+  dt.setDate(dt.getDate()+n);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
 }
-function fmtDate(s) { return toDate(s).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}); }
-function fmtShort(s) { return toDate(s).toLocaleDateString('en-GB', {day:'numeric',month:'short'}); }
+function fmtDate(s) { return toDate(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtShort(s) { return toDate(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* ---- Tracker helpers ---- */
+/* ── Tracker helpers ── */
 function getAllDates(trk) {
   const res = [];
   for (let i = 0; i < trk.days; i++) res.push(addDays(trk.startDate, i));
@@ -273,62 +366,50 @@ function getPastDates(trk) {
   const t = today();
   return getAllDates(trk).filter(d => d < t);
 }
-function getAwaitingDates(trk) {
-  return getPastDates(trk).filter(d => !trk.log[d]);
-}
+function getAwaitingDates(trk) { return getPastDates(trk).filter(d => !trk.log[d]); }
 function getStreaks(trk) {
   const past = getPastDates(trk);
-  let cur = 0, best = 0, tmp = 0, inCur = true;
-  for (let i = past.length - 1; i >= 0; i--) {
-    if (inCur) { if (trk.log[past[i]] === 'done') cur++; else inCur = false; }
-  }
-  for (const d of past) {
-    if (trk.log[d] === 'done') { tmp++; best = Math.max(best, tmp); }
-    else if (trk.log[d] === 'missed') tmp = 0;
-  }
-  return { current: cur, best };
+  let cur=0, best=0, tmp=0, inCur=true;
+  for (let i=past.length-1;i>=0;i--) { if(inCur){if(trk.log[past[i]]==='done')cur++;else inCur=false;} }
+  for (const d of past) { if(trk.log[d]==='done'){tmp++;best=Math.max(best,tmp);}else if(trk.log[d]==='missed')tmp=0; }
+  return {current:cur,best};
 }
 function calcStats(trk) {
-  const past = getPastDates(trk);
-  const done    = past.filter(d => trk.log[d] === 'done').length;
-  const missed  = past.filter(d => trk.log[d] === 'missed').length;
-  const awaiting= past.filter(d => !trk.log[d]).length;
-  const left    = Math.max(trk.days - past.length, 0);
-  const pct     = past.length ? ((done / past.length) * 100).toFixed(1) : '0.0';
-  return { done, missed, awaiting, left, pct, past: past.length, total: trk.days };
+  const past    = getPastDates(trk);
+  const done    = past.filter(d=>trk.log[d]==='done').length;
+  const missed  = past.filter(d=>trk.log[d]==='missed').length;
+  const awaiting= past.filter(d=>!trk.log[d]).length;
+  const left    = Math.max(trk.days-past.length,0);
+  const pct     = past.length?((done/past.length)*100).toFixed(1):'0.0';
+  return {done,missed,awaiting,left,pct,past:past.length,total:trk.days};
 }
-function activeTracker() { return state.trackers.find(t => t.id === state.activeId) || null; }
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function activeTracker() { return state.trackers.find(t=>t.id===state.activeId)||null; }
 
-/* ---- Greeting ---- */
+/* ── Greeting ── */
 function renderGreeting() {
   const name = getUserName();
-  const msg  = name ? 'Hi, ' + name + ' \uD83D\uDC4B' : '';
+  const msg  = name ? 'Hi, '+name+' 👋' : '';
   document.getElementById('sidebar-greeting').textContent = msg;
   document.getElementById('mob-greeting').textContent = msg;
 }
 
-/* ---- Sidebar / Drawer ---- */
+/* ── Sidebar ── */
 function renderSidebar() {
-  ['sidebar-list','drawer-list'].forEach(id => {
+  ['sidebar-list','drawer-list'].forEach(id=>{
     const el = document.getElementById(id);
     el.innerHTML = '';
-    state.trackers.forEach(trk => {
+    state.trackers.forEach(trk=>{
       const st  = calcStats(trk);
       const btn = document.createElement('button');
-      btn.className = 'sidebar-btn' + (trk.id === state.activeId ? ' active' : '');
-      btn.innerHTML = '<span class="dot"></span>'
-        + '<span class="trk-name">' + esc(trk.name) + '</span>'
-        + '<span class="trk-pct">' + st.pct + '%</span>';
-      btn.onclick = () => { state.activeId = trk.id; saveState(); renderSidebar(); renderMain(); closeDrawer(); };
+      btn.className = 'sidebar-btn'+(trk.id===state.activeId?' active':'');
+      btn.innerHTML = '<span class="dot"></span><span class="trk-name">'+esc(trk.name)+'</span><span class="trk-pct">'+st.pct+'%</span>';
+      btn.onclick = ()=>{ state.activeId=trk.id; saveState(); renderSidebar(); renderMain(); closeDrawer(); };
       el.appendChild(btn);
     });
   });
 }
 
-/* ---- Name modal ---- */
+/* ── Name ── */
 function saveName() {
   const val = document.getElementById('nm-input').value.trim();
   if (!val) { document.getElementById('nm-input').focus(); return; }
@@ -337,7 +418,7 @@ function saveName() {
   renderGreeting();
 }
 
-/* ---- Create / Edit modal ---- */
+/* ── Create / Edit modal ── */
 function openCreateModal() {
   editingId = null;
   document.getElementById('trk-modal-title').textContent = 'Create Tracker';
@@ -347,318 +428,47 @@ function openCreateModal() {
   document.getElementById('fm-days').value  = 120;
   openModal('trk-modal');
 }
-
 function saveTracker() {
   const name  = document.getElementById('fm-name').value.trim();
   const desc  = document.getElementById('fm-desc').value.trim();
   const start = document.getElementById('fm-start').value;
-  const days  = parseInt(document.getElementById('fm-days').value, 10);
-  if (!name)  { alert('Please enter a tracker name.'); return; }
-  if (!start) { alert('Please select a start date.'); return; }
-  if (!days || days < 1) { alert('Please enter a valid duration.'); return; }
+  const days  = parseInt(document.getElementById('fm-days').value,10);
+  if (!name)       { alert('Please enter a tracker name.'); return; }
+  if (!start)      { alert('Please select a start date.'); return; }
+  if (!days||days<1){ alert('Please enter a valid duration.'); return; }
   if (editingId) {
-    const trk = state.trackers.find(t => t.id === editingId);
-    if (trk) { trk.name = name; trk.description = desc; trk.startDate = start; trk.days = days; }
+    const trk = state.trackers.find(t=>t.id===editingId);
+    if (trk){trk.name=name;trk.description=desc;trk.startDate=start;trk.days=days;}
   } else {
-    const trk = { id: 'trk_' + Date.now(), name, description: desc, startDate: start, days, log: {} };
+    const trk = {id:'trk_'+Date.now(),name,description:desc,startDate:start,days,log:{}};
     state.trackers.push(trk);
     state.activeId = trk.id;
   }
-  saveState();
-  closeModal('trk-modal');
-  renderSidebar();
-  renderMain();
+  saveState(); closeModal('trk-modal'); renderSidebar(); renderMain();
 }
 
-/* ---- Edit panel (inline) ---- */
-function toggleEdit() {
-  const p = document.getElementById('edit-panel');
-  if (p) p.classList.toggle('open');
-}
+/* ── Inline edit ── */
+function toggleEdit() { const p=document.getElementById('edit-panel'); if(p)p.classList.toggle('open'); }
 function saveEdit() {
-  const trk = activeTracker(); if (!trk) return;
-  const name  = document.getElementById('ep-name').value.trim();
-  const start = document.getElementById('ep-start').value;
-  const days  = parseInt(document.getElementById('ep-days').value, 10);
-  const desc  = document.getElementById('ep-desc').value.trim();
-  if (!name || !start || !days) { alert('Please fill all fields.'); return; }
-  trk.name = name; trk.startDate = start; trk.days = days; trk.description = desc;
+  const trk=activeTracker(); if(!trk)return;
+  const name=document.getElementById('ep-name').value.trim();
+  const start=document.getElementById('ep-start').value;
+  const days=parseInt(document.getElementById('ep-days').value,10);
+  const desc=document.getElementById('ep-desc').value.trim();
+  if(!name||!start||!days){alert('Please fill all fields.');return;}
+  trk.name=name;trk.startDate=start;trk.days=days;trk.description=desc;
   saveState(); renderSidebar(); renderMain();
 }
 
-/* ---- Delete ---- */
+/* ── Delete ── */
 function openDeleteModal() { openModal('del-modal'); }
 function confirmDelete() {
-  state.trackers = state.trackers.filter(t => t.id !== state.activeId);
-  state.activeId = state.trackers.length ? state.trackers[0].id : null;
+  state.trackers=state.trackers.filter(t=>t.id!==state.activeId);
+  state.activeId=state.trackers.length?state.trackers[0].id:null;
   saveState(); closeModal('del-modal'); renderSidebar(); renderMain();
 }
 
-/* ---- Day click / bulk ---- */
-function startBulkSelect() {
-  bulkMode = true; bulkSelected = [];
-  document.getElementById('bulk-toolbar').style.display = 'flex';
-  document.getElementById('bulk-controls').style.display = 'none';
-}
-function endBulkSelect() {
-  bulkMode = false; bulkSelected = [];
-  document.getElementById('bulk-toolbar').style.display = 'none';
-  document.getElementById('bulk-controls').style.display = 'flex';
-  document.querySelectorAll('.day-sq.selected').forEach(s => s.classList.remove('selected'));
-  updateBulkCount();
-}
-function updateBulkCount() {
-  const el = document.getElementById('bulk-count');
-  if (el) el.textContent = bulkSelected.length + ' day' + (bulkSelected.length !== 1 ? 's' : '') + ' selected';
-}
-function bulkApply(status) {
-  const trk = activeTracker(); if (!trk || !bulkSelected.length) return;
-  bulkSelected.forEach(d => { trk.log[d] = status; });
-  saveState(); endBulkSelect(); renderMain(); renderSidebar();
-}
-function handleDayClick(d, clickable) {
-  if (!clickable) return;
-  if (bulkMode) {
-    const idx = bulkSelected.indexOf(d);
-    if (idx >= 0) bulkSelected.splice(idx, 1); else bulkSelected.push(d);
-    const sq = document.querySelector('.day-sq[data-date="' + d + '"]');
-    if (sq) sq.classList.toggle('selected', bulkSelected.includes(d));
-    updateBulkCount();
-    return;
-  }
-  openDayModal(d);
-}
-
-/* ---- Day modal ---- */
-function openDayModal(d) {
-  const trk = activeTracker(); if (!trk) return;
-  const status = trk.log[d];
-  document.getElementById('day-modal-title').textContent = 'Day — ' + fmtDate(d);
-  document.getElementById('day-modal-body').innerHTML =
-    '<p style="font-size:0.82rem;color:var(--text2);margin-bottom:1rem;">Status: <strong style="color:'
-    + (status==='done'?'var(--green)':status==='missed'?'var(--red)':'var(--amber)') + '">'
-    + (status||'Not logged') + '</strong></p>'
-    + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
-    + '<button class="btn btn-green" onclick="setDay(\'' + d + '\',\'done\')">✓ Done</button>'
-    + '<button class="btn btn-red" onclick="setDay(\'' + d + '\',\'missed\')">✗ Missed</button>'
-    + (status ? '<button class="btn btn-ghost" onclick="setDay(\'' + d + '\',null)">Clear</button>' : '')
-    + '</div>';
-  openModal('day-modal');
-}
-function setDay(d, status) {
-  const trk = activeTracker(); if (!trk) return;
-  if (status) trk.log[d] = status; else delete trk.log[d];
-  saveState(); closeModal('day-modal'); renderMain(); renderSidebar();
-}
-
-/* ---- Awaiting modal ---- */
-function openAwaitModal() {
-  const trk = activeTracker(); if (!trk) return;
-  awaitingDates = getAwaitingDates(trk);
-  refreshAwaitBody();
-  openModal('await-modal');
-}
-function refreshAwaitBody() {
-  const trk = activeTracker(); if (!trk) return;
-  const body = document.getElementById('await-body');
-  if (!awaitingDates.length) { closeModal('await-modal'); renderMain(); renderSidebar(); return; }
-  body.innerHTML = awaitingDates.map(d =>
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);">'
-    + '<span style="font-size:0.82rem;color:var(--text2);">' + fmtDate(d) + '</span>'
-    + '<div style="display:flex;gap:6px;">'
-    + '<button class="btn btn-green btn-xs" onclick="setDayAw(\'' + d + '\',\'done\')">Done</button>'
-    + '<button class="btn btn-red btn-xs" onclick="setDayAw(\'' + d + '\',\'missed\')">Missed</button>'
-    + '</div></div>'
-  ).join('');
-}
-function setDayAw(d, status) {
-  const trk = activeTracker(); if (!trk) return;
-  trk.log[d] = status;
-  saveState();
-  awaitingDates = awaitingDates.filter(x => x !== d);
-  refreshAwaitBody();
-  renderSidebar();
-}
-function bulkMarkDone()   { applyAwait('done'); }
-function bulkMarkMissed() { applyAwait('missed'); }
-function applyAwait(status) {
-  const trk = activeTracker(); if (!trk) return;
-  getAwaitingDates(trk).forEach(d => { trk.log[d] = status; });
-  saveState(); closeModal('await-modal'); renderMain(); renderSidebar();
-}
-
-/* ---- Main render ---- */
-function renderMain() {
-  const trk = activeTracker();
-  const mc  = document.getElementById('main-content');
-  if (!trk) { renderEmpty(); return; }
-
-  document.getElementById('mob-title').textContent = trk.name;
-
-  const st      = calcStats(trk);
-  const streaks = getStreaks(trk);
-  const allDates= getAllDates(trk);
-  const awaiting= getAwaitingDates(trk);
-  const endDate = addDays(trk.startDate, trk.days - 1);
-  const isComplete = st.left === 0 && st.awaiting === 0;
-
-  let html = '';
-
-  /* Header */
-  html += '<div class="trk-header">'
-    + '<div class="trk-title-block"><h1>' + esc(trk.name) + '</h1>'
-    + '<p>' + esc(trk.description||'') + (trk.description?' &nbsp;·&nbsp; ':'')
-    + fmtDate(trk.startDate) + ' → ' + fmtDate(endDate) + ' &nbsp;·&nbsp; ' + trk.days + ' days</p></div>'
-    + '<div class="trk-actions"><button class="btn btn-ghost btn-sm" onclick="toggleEdit()">✎ Edit</button></div>'
-    + '</div>';
-
-  /* Edit panel */
-  html += '<div class="edit-panel" id="edit-panel">'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">'
-    + '<div class="form-group" style="margin:0"><label>Name</label><input type="text" id="ep-name" value="' + esc(trk.name) + '"></div>'
-    + '<div class="form-group" style="margin:0"><label>Start Date</label><input type="date" id="ep-start" value="' + trk.startDate + '"></div>'
-    + '<div class="form-group" style="margin:0"><label>Duration (days)</label><input type="number" id="ep-days" value="' + trk.days + '" min="1"></div>'
-    + '<div class="form-group" style="margin:0"><label>Description</label><input type="text" id="ep-desc" value="' + esc(trk.description||'') + '"></div>'
-    + '</div>'
-    + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
-    + '<button class="btn btn-green btn-sm" onclick="saveEdit()">Save Changes</button>'
-    + '<button class="btn btn-ghost btn-sm" onclick="toggleEdit()">Cancel</button>'
-    + '<button class="btn btn-red btn-sm" style="margin-left:auto" onclick="openDeleteModal()">Delete Tracker</button>'
-    + '</div></div>';
-
-  /* Complete banner */
-  if (isComplete) {
-    html += '<div style="background:var(--green3);border:0.5px solid var(--green);border-radius:var(--rad);padding:1rem 1.5rem;margin-bottom:1rem;text-align:center;">'
-      + '<p style="color:var(--green4);font-size:0.9rem;"><strong>Challenge Complete!</strong> ' + st.done + '/' + trk.days + ' days done. Amazing!</p></div>';
-  }
-
-  /* Awaiting banner */
-  if (awaiting.length) {
-    html += '<div class="awaiting-banner" onclick="openAwaitModal()">'
-      + '<p>⚠ <strong>' + awaiting.length + ' day' + (awaiting.length>1?'s':'') + '</strong> awaiting update</p>'
-      + '<span>Tap to review →</span></div>';
-  }
-
-  /* Stats */
-  html += '<div class="stats">'
-    + '<div class="stat"><div class="stat-label">Done</div><div class="stat-value green">' + st.done + '</div><div class="stat-sub">days</div></div>'
-    + '<div class="stat"><div class="stat-label">Missed</div><div class="stat-value ' + (st.missed>0?'red':'white') + '">' + st.missed + '</div><div class="stat-sub">days</div></div>'
-    + '<div class="stat"><div class="stat-label">Remaining</div><div class="stat-value white">' + st.left + '</div><div class="stat-sub">days left</div></div>'
-    + '<div class="stat"><div class="stat-label">Success rate</div><div class="stat-value amber">' + st.pct + '%</div><div class="stat-sub">of logged</div></div>'
-    + '</div>';
-
-  /* Streaks */
-  html += '<div class="streak-row">'
-    + '<div class="streak-badge"><span class="sb-dot" style="background:var(--green)"></span>Current streak: <strong>' + streaks.current + ' day' + (streaks.current!==1?'s':'') + '</strong></div>'
-    + '<div class="streak-badge"><span class="sb-dot" style="background:var(--amber)"></span>Best streak: <strong>' + streaks.best + ' day' + (streaks.best!==1?'s':'') + '</strong></div>'
-    + (st.missed>0?'<div class="streak-badge"><span class="sb-dot" style="background:var(--red)"></span>Streak broken: <strong>' + st.missed + ' miss' + (st.missed!==1?'es':'') + '</strong></div>':'')
-    + '</div>';
-
-  /* Progress bar */
-  const barColor = st.missed > 0 ? 'var(--amber)' : 'var(--green)';
-  const barPct   = Math.min((st.done / trk.days) * 100, 100).toFixed(1);
-  html += '<div class="card"><div class="card-title">Overall progress</div>'
-    + '<div class="pbar-wrap"><div class="pbar-fill" style="width:' + barPct + '%;background:' + barColor + '"></div>'
-    + '<div class="pbar-text">Day ' + st.past + ' of ' + trk.days + ' — ' + st.pct + '% success</div></div>'
-    + '<div class="bar-labels"><span>' + fmtShort(trk.startDate) + '</span><span>' + fmtShort(endDate) + '</span></div></div>';
-
-  /* Day grid */
-  html += '<div class="card">'
-    + '<div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">'
-    + '<span>Day-by-day grid</span>'
-    + '<div id="bulk-controls"><button class="btn btn-ghost btn-xs" onclick="startBulkSelect()">Bulk select</button></div>'
-    + '</div>'
-    + '<div id="bulk-toolbar" style="display:none;" class="bulk-toolbar">'
-    + '<p id="bulk-count">0 days selected</p>'
-    + '<button class="btn btn-green btn-xs" onclick="bulkApply(\'done\')">Mark Done</button>'
-    + '<button class="btn btn-red btn-xs" onclick="bulkApply(\'missed\')">Mark Missed</button>'
-    + '<button class="btn btn-ghost btn-xs" onclick="endBulkSelect()">Cancel</button>'
-    + '</div>'
-    + '<div class="grid-wrap" id="day-grid"></div>'
-    + '<div class="grid-legend">'
-    + '<span><span class="leg-sq" style="background:var(--green)"></span>Done (' + st.done + ')</span>'
-    + '<span><span class="leg-sq" style="background:var(--red)"></span>Missed (' + st.missed + ')</span>'
-    + '<span><span class="leg-sq" style="background:var(--amber)"></span>Today</span>'
-    + '<span><span class="leg-sq" style="background:var(--bg3);border:0.5px solid var(--border2)"></span>Pending (' + st.awaiting + ')</span>'
-    + '<span><span class="leg-sq" style="background:var(--bg2);border:0.5px solid var(--border)"></span>Future (' + st.left + ')</span>'
-    + '</div></div>';
-
-  /* Charts */
-  html += '<div class="chart-row">'
-    + '<div class="card" style="margin:0"><div class="card-title">Completion</div>'
-    + '<div style="position:relative;height:160px;"><canvas id="donut-chart"></canvas></div>'
-    + '<div style="text-align:center;margin-top:8px;"><strong style="font-size:1rem;color:var(--green)">' + st.done + ' / ' + trk.days + ' days</strong>'
-    + '<p style="font-size:0.7rem;color:var(--text3);">' + st.missed + ' missed · ' + st.awaiting + ' pending</p></div>'
-    + '</div>'
-    + '<div class="card" style="margin:0"><div class="card-title">Weekly breakdown</div>'
-    + '<div class="weeks-grid" id="weeks-grid"></div>'
-    + '</div></div>';
-
-  /* Disclaimer */
-  html += '<div class="disclaimer">ℹ Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the \"Clear all data option\" to manually reset anytime. </div>';
-
-  mc.innerHTML = html;
-  bulkMode = false; bulkSelected = [];
-
-  /* Populate day grid */
-  const grid = document.getElementById('day-grid');
-  const t    = today();
-  allDates.forEach((d, i) => {
-    const isPast  = d < t;
-    const isToday = d === t;
-    const status  = trk.log[d];
-    let cls = 'day-sq ';
-    if      (status === 'done')   cls += 'done';
-    else if (status === 'missed') cls += 'missed';
-    else if (isToday)             cls += 'today';
-    else if (isPast)              cls += 'pending';
-    else                          cls += 'future';
-    const sq = document.createElement('div');
-    sq.className   = cls;
-    sq.dataset.date= d;
-    sq.innerHTML   = '<span class="tip">Day ' + (i+1) + ' · ' + fmtShort(d) + (status?' · '+status:'') + '</span>';
-    sq.onclick     = () => handleDayClick(d, isPast || isToday);
-    grid.appendChild(sq);
-  });
-
-  /* Weekly grid */
-  const wg       = document.getElementById('weeks-grid');
-  const numWeeks = Math.ceil(trk.days / 7);
-  for (let w = 0; w < numWeeks; w++) {
-    const wDates = allDates.slice(w*7, w*7+7).filter(d => d < t);
-    const wDone  = wDates.filter(d => trk.log[d]==='done').length;
-    const pct    = wDates.length ? Math.round((wDone/wDates.length)*100) : 0;
-    const col    = pct===100?'var(--green)':pct>0?'var(--amber)':'var(--text3)';
-    const box    = document.createElement('div');
-    box.className = 'week-box';
-    box.innerHTML = '<div class="week-label">Wk '+(w+1)+'</div>'
-      + '<div class="week-bar-wrap"><div class="week-bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
-      + '<div style="font-size:0.68rem;margin-top:3px;color:'+col+'">'+wDone+'/'+Math.min(7,trk.days-w*7)+'d</div>';
-    wg.appendChild(box);
-  }
-
-  /* Donut chart */
-  if (donutChart) { donutChart.destroy(); donutChart = null; }
-  donutChart = new Chart(document.getElementById('donut-chart'), {
-    type: 'doughnut',
-    data: { datasets: [{ data:[st.done,st.missed,st.awaiting,st.left], backgroundColor:['#1D9E75','#E24B4A','#EF9F27','#252831'], borderWidth:0, hoverOffset:4 }] },
-    options: { responsive:true, maintainAspectRatio:false, cutout:'74%',
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx=>[' Done',' Missed',' Pending',' Future'][ctx.dataIndex]+': '+ctx.parsed+' days' } } }
-    }
-  });
-}
-
-function renderEmpty() {
-  document.getElementById('main-content').innerHTML =
-    '<div class="empty-state">'
-    + '<div class="empty-icon">📋</div>'
-    + '<h2>No tracker selected</h2>'
-    + '<p>Create your first habit tracker to start monitoring your progress.</p>'
-    + '<button class="btn btn-green" onclick="openCreateModal()">+ Create Tracker</button>'
-    + '</div>'
-    + '<div class="disclaimer">ℹ Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the \"Clear all data\" option to manually reset anytime.</div>';
-}
-
+/* ── Reset all ── */
 function openResetModal() { openModal('reset-modal'); }
 function confirmReset() {
   localStorage.removeItem(LS_KEY);
@@ -666,26 +476,263 @@ function confirmReset() {
   location.reload();
 }
 
-/* ---- Modal helpers ---- */
+/* ── Bulk select ── */
+function startBulkSelect() {
+  bulkMode=true; bulkSelected=[];
+  document.getElementById('bulk-toolbar').style.display='flex';
+  document.getElementById('bulk-controls').style.display='none';
+}
+function endBulkSelect() {
+  bulkMode=false; bulkSelected=[];
+  document.getElementById('bulk-toolbar').style.display='none';
+  document.getElementById('bulk-controls').style.display='flex';
+  document.querySelectorAll('.day-sq.selected').forEach(s=>s.classList.remove('selected'));
+  updateBulkCount();
+}
+function updateBulkCount() {
+  const el=document.getElementById('bulk-count');
+  if(el) el.textContent=bulkSelected.length+' day'+(bulkSelected.length!==1?'s':'')+' selected';
+}
+function bulkApply(status) {
+  const trk=activeTracker(); if(!trk||!bulkSelected.length)return;
+  bulkSelected.forEach(d=>{trk.log[d]=status;});
+  saveState(); endBulkSelect(); renderMain(); renderSidebar();
+}
+function handleDayClick(d,clickable) {
+  if(!clickable)return;
+  if(bulkMode){
+    const idx=bulkSelected.indexOf(d);
+    if(idx>=0)bulkSelected.splice(idx,1); else bulkSelected.push(d);
+    const sq=document.querySelector('.day-sq[data-date="'+d+'"]');
+    if(sq)sq.classList.toggle('selected',bulkSelected.includes(d));
+    updateBulkCount(); return;
+  }
+  openDayModal(d);
+}
+
+/* ── Day modal ── */
+function openDayModal(d) {
+  const trk=activeTracker(); if(!trk)return;
+  const status=trk.log[d];
+  document.getElementById('day-modal-title').textContent='Day — '+fmtDate(d);
+  document.getElementById('day-modal-body').innerHTML=
+    '<p style="font-size:0.82rem;color:var(--text2);margin-bottom:1rem;">Status: <strong style="color:'
+    +(status==='done'?'var(--green)':status==='missed'?'var(--red)':'var(--amber)')+'">'+( status||'Not logged')+'</strong></p>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+    +'<button class="btn btn-green" onclick="setDay(\''+d+'\',\'done\')">✓ Done</button>'
+    +'<button class="btn btn-red" onclick="setDay(\''+d+'\',\'missed\')">✗ Missed</button>'
+    +(status?'<button class="btn btn-ghost" onclick="setDay(\''+d+'\',null)">Clear</button>':'')
+    +'</div>';
+  openModal('day-modal');
+}
+function setDay(d,status) {
+  const trk=activeTracker(); if(!trk)return;
+  if(status)trk.log[d]=status; else delete trk.log[d];
+  saveState(); closeModal('day-modal'); renderMain(); renderSidebar();
+}
+
+/* ── Awaiting modal ── */
+function openAwaitModal() {
+  const trk=activeTracker(); if(!trk)return;
+  awaitingDates=getAwaitingDates(trk);
+  refreshAwaitBody(); openModal('await-modal');
+}
+function refreshAwaitBody() {
+  const trk=activeTracker(); if(!trk)return;
+  if(!awaitingDates.length){closeModal('await-modal');renderMain();renderSidebar();return;}
+  document.getElementById('await-body').innerHTML=awaitingDates.map(d=>
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);">'
+    +'<span style="font-size:0.82rem;color:var(--text2);">'+fmtDate(d)+'</span>'
+    +'<div style="display:flex;gap:6px;">'
+    +'<button class="btn btn-green btn-xs" onclick="setDayAw(\''+d+'\',\'done\')">Done</button>'
+    +'<button class="btn btn-red btn-xs" onclick="setDayAw(\''+d+'\',\'missed\')">Missed</button>'
+    +'</div></div>'
+  ).join('');
+}
+function setDayAw(d,status) {
+  const trk=activeTracker(); if(!trk)return;
+  trk.log[d]=status; saveState();
+  awaitingDates=awaitingDates.filter(x=>x!==d);
+  refreshAwaitBody(); renderSidebar();
+}
+function bulkMarkDone()   { applyAwait('done'); }
+function bulkMarkMissed() { applyAwait('missed'); }
+function applyAwait(status) {
+  const trk=activeTracker(); if(!trk)return;
+  getAwaitingDates(trk).forEach(d=>{trk.log[d]=status;});
+  saveState(); closeModal('await-modal'); renderMain(); renderSidebar();
+}
+
+/* ── Main render ── */
+function renderMain() {
+  const trk=activeTracker();
+  const mc=document.getElementById('main-content');
+  if(!trk){renderEmpty();return;}
+  document.getElementById('mob-title').textContent=trk.name;
+  const st=calcStats(trk), streaks=getStreaks(trk);
+  const allDates=getAllDates(trk), awaiting=getAwaitingDates(trk);
+  const endDate=addDays(trk.startDate,trk.days-1);
+  const isComplete=st.left===0&&st.awaiting===0;
+  let html='';
+
+  html+='<div class="trk-header">'
+    +'<div class="trk-title-block"><h1>'+esc(trk.name)+'</h1>'
+    +'<p>'+esc(trk.description||'')+(trk.description?' &nbsp;·&nbsp; ':'')+fmtDate(trk.startDate)+' → '+fmtDate(endDate)+' &nbsp;·&nbsp; '+trk.days+' days</p></div>'
+    +'<div><button class="btn btn-ghost btn-sm" onclick="toggleEdit()">✎ Edit</button></div>'
+    +'</div>';
+
+  html+='<div class="edit-panel" id="edit-panel">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">'
+    +'<div class="form-group" style="margin:0"><label>Name</label><input type="text" id="ep-name" value="'+esc(trk.name)+'"></div>'
+    +'<div class="form-group" style="margin:0"><label>Start Date</label><input type="date" id="ep-start" value="'+trk.startDate+'"></div>'
+    +'<div class="form-group" style="margin:0"><label>Duration (days)</label><input type="number" id="ep-days" value="'+trk.days+'" min="1"></div>'
+    +'<div class="form-group" style="margin:0"><label>Description</label><input type="text" id="ep-desc" value="'+esc(trk.description||'')+'"></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+    +'<button class="btn btn-green btn-sm" onclick="saveEdit()">Save Changes</button>'
+    +'<button class="btn btn-ghost btn-sm" onclick="toggleEdit()">Cancel</button>'
+    +'<button class="btn btn-red btn-sm" style="margin-left:auto" onclick="openDeleteModal()">Delete Tracker</button>'
+    +'</div></div>';
+
+  if(isComplete) html+='<div style="background:var(--green3);border:0.5px solid var(--green);border-radius:var(--rad);padding:1rem 1.5rem;margin-bottom:1rem;text-align:center;"><p style="color:var(--green4);font-size:0.9rem;"><strong>Challenge Complete!</strong> '+st.done+'/'+trk.days+' days done. Amazing!</p></div>';
+  if(awaiting.length) html+='<div class="awaiting-banner" onclick="openAwaitModal()"><p>⚠ <strong>'+awaiting.length+' day'+(awaiting.length>1?'s':'')+'</strong> awaiting update</p><span>Tap to review →</span></div>';
+
+  html+='<div class="stats">'
+    +'<div class="stat"><div class="stat-label">Done</div><div class="stat-value c-green">'+st.done+'</div><div class="stat-sub">days</div></div>'
+    +'<div class="stat"><div class="stat-label">Missed</div><div class="stat-value '+(st.missed>0?'c-red':'c-text')+'">'+st.missed+'</div><div class="stat-sub">days</div></div>'
+    +'<div class="stat"><div class="stat-label">Remaining</div><div class="stat-value c-text">'+st.left+'</div><div class="stat-sub">days left</div></div>'
+    +'<div class="stat"><div class="stat-label">Success rate</div><div class="stat-value c-amber">'+st.pct+'%</div><div class="stat-sub">of logged</div></div>'
+    +'</div>';
+
+  html+='<div class="streak-row">'
+    +'<div class="streak-badge"><span class="sb-dot" style="background:var(--green)"></span>Current streak: <strong>'+streaks.current+' day'+(streaks.current!==1?'s':'')+'</strong></div>'
+    +'<div class="streak-badge"><span class="sb-dot" style="background:var(--amber)"></span>Best streak: <strong>'+streaks.best+' day'+(streaks.best!==1?'s':'')+'</strong></div>'
+    +(st.missed>0?'<div class="streak-badge"><span class="sb-dot" style="background:var(--red)"></span>Streak broken: <strong>'+st.missed+' miss'+(st.missed!==1?'es':'')+'</strong></div>':'')
+    +'</div>';
+
+  const barPct=Math.min((st.done/trk.days)*100,100).toFixed(1);
+  const barColor=st.missed>0?'var(--amber)':'var(--green)';
+  html+='<div class="card"><div class="card-title">Overall progress</div>'
+    +'<div class="pbar-wrap"><div class="pbar-fill" style="width:'+barPct+'%;background:'+barColor+'"></div>'
+    +'<div class="pbar-text">Day '+st.past+' of '+trk.days+' — '+st.pct+'% success</div></div>'
+    +'<div class="bar-labels"><span>'+fmtShort(trk.startDate)+'</span><span>'+fmtShort(endDate)+'</span></div></div>';
+
+  html+='<div class="card">'
+    +'<div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">'
+    +'<span>Day-by-day grid</span>'
+    +'<div id="bulk-controls"><button class="btn btn-ghost btn-xs" onclick="startBulkSelect()">Bulk select</button></div>'
+    +'</div>'
+    +'<div id="bulk-toolbar" style="display:none;" class="bulk-toolbar">'
+    +'<p id="bulk-count">0 days selected</p>'
+    +'<button class="btn btn-green btn-xs" onclick="bulkApply(\'done\')">Mark Done</button>'
+    +'<button class="btn btn-red btn-xs" onclick="bulkApply(\'missed\')">Mark Missed</button>'
+    +'<button class="btn btn-ghost btn-xs" onclick="endBulkSelect()">Cancel</button>'
+    +'</div>'
+    +'<div class="grid-wrap" id="day-grid"></div>'
+    +'<div class="grid-legend">'
+    +'<span><span class="leg-sq" style="background:var(--green)"></span>Done ('+st.done+')</span>'
+    +'<span><span class="leg-sq" style="background:var(--red)"></span>Missed ('+st.missed+')</span>'
+    +'<span><span class="leg-sq" style="background:var(--amber)"></span>Today</span>'
+    +'<span><span class="leg-sq" style="background:var(--bg3);border:0.5px solid var(--border2)"></span>Pending ('+st.awaiting+')</span>'
+    +'<span><span class="leg-sq" style="background:var(--bg3);border:0.5px solid var(--border)"></span>Future ('+st.left+')</span>'
+    +'</div></div>';
+
+  html+='<div class="chart-row">'
+    +'<div class="card" style="margin:0"><div class="card-title">Completion</div>'
+    +'<div style="position:relative;height:160px;"><canvas id="donut-chart"></canvas></div>'
+    +'<div style="text-align:center;margin-top:8px;"><strong style="font-size:1rem;color:var(--green)">'+st.done+' / '+trk.days+' days</strong><p style="font-size:0.7rem;color:var(--text3);">'+st.missed+' missed · '+st.awaiting+' pending</p></div>'
+    +'</div>'
+    +'<div class="card" style="margin:0"><div class="card-title">Weekly breakdown</div><div class="weeks-grid" id="weeks-grid"></div></div>'
+    +'</div>';
+
+  html+='<div class="disclaimer">Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the "Clear all data" option to manually reset anytime.</div>';
+
+  mc.innerHTML=html;
+  bulkMode=false; bulkSelected=[];
+
+  /* Day grid */
+  const grid=document.getElementById('day-grid');
+  const t=today();
+  allDates.forEach((d,i)=>{
+    const isPast=d<t, isToday=d===t, status=trk.log[d];
+    let cls='day-sq ';
+    if(status==='done')cls+='done';
+    else if(status==='missed')cls+='missed';
+    else if(isToday)cls+='today';
+    else if(isPast)cls+='pending';
+    else cls+='future';
+    const sq=document.createElement('div');
+    sq.className=cls; sq.dataset.date=d;
+    sq.innerHTML='<span class="tip">Day '+(i+1)+' · '+fmtShort(d)+(status?' · '+status:'')+'</span>';
+    sq.onclick=()=>handleDayClick(d,isPast||isToday);
+    grid.appendChild(sq);
+  });
+
+  /* Weekly grid */
+  const wg=document.getElementById('weeks-grid');
+  const numWeeks=Math.ceil(trk.days/7);
+  for(let w=0;w<numWeeks;w++){
+    const wDates=allDates.slice(w*7,w*7+7).filter(d=>d<t);
+    const wDone=wDates.filter(d=>trk.log[d]==='done').length;
+    const pct=wDates.length?Math.round((wDone/wDates.length)*100):0;
+    const col=pct===100?'var(--green)':pct>0?'var(--amber)':'var(--text3)';
+    const box=document.createElement('div');
+    box.className='week-box';
+    box.innerHTML='<div class="week-label">Wk '+(w+1)+'</div>'
+      +'<div class="week-bar-wrap"><div class="week-bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'<div style="font-size:0.68rem;margin-top:3px;color:'+col+'">'+wDone+'/'+Math.min(7,trk.days-w*7)+'d</div>';
+    wg.appendChild(box);
+  }
+
+  /* Donut */
+  if(donutChart){donutChart.destroy();donutChart=null;}
+  const isDark=getTheme()==='dark';
+  donutChart=new Chart(document.getElementById('donut-chart'),{
+    type:'doughnut',
+    data:{datasets:[{data:[st.done,st.missed,st.awaiting,st.left],
+      backgroundColor:['#1D9E75','#E24B4A','#EF9F27',isDark?'#252831':'#e8eaef'],
+      borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'74%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>[' Done',' Missed',' Pending',' Future'][ctx.dataIndex]+': '+ctx.parsed+' days'}}}}
+  });
+}
+
+function renderEmpty() {
+  document.getElementById('main-content').innerHTML=
+    '<div class="empty-state">'
+    +'<div class="empty-icon">📋</div>'
+    +'<h2>No tracker selected</h2>'
+    +'<p>Create your first habit tracker to start monitoring your progress.</p>'
+    +'<button class="btn btn-green" onclick="openCreateModal()">+ Create Tracker</button>'
+    +'</div>'
+    +'<div class="disclaimer">Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the "Clear all data" option to manually reset anytime.</div>';
+}
+
+/* ── Modals ── */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{
+    if(e.target!==m)return;
+    if(m.id==='name-modal')return;
+    m.classList.remove('open');
+  });
 });
 
-/* ---- Drawer ---- */
+/* ── Drawer ── */
 function openDrawer()  { document.getElementById('mob-drawer').classList.add('open'); }
 function closeDrawer() { document.getElementById('mob-drawer').classList.remove('open'); }
-function closeDrawerOutside(e) { if (e.target === document.getElementById('mob-drawer')) closeDrawer(); }
+function closeDrawerOutside(e) { if(e.target===document.getElementById('mob-drawer'))closeDrawer(); }
 
-/* ---- Init ---- */
+/* ── Init ── */
 loadState();
-if (state.trackers.length && !state.activeId) state.activeId = state.trackers[0].id;
+if(state.trackers.length&&!state.activeId) state.activeId=state.trackers[0].id;
+applyTheme(getTheme());
 renderSidebar();
 renderGreeting();
-if (!getUserName()) {
+if(!getUserName()){
   openModal('name-modal');
-  setTimeout(() => document.getElementById('nm-input').focus(), 100);
+  setTimeout(()=>document.getElementById('nm-input').focus(),100);
 } else {
   renderMain();
 }
