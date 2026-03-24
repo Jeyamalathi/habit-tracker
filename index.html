@@ -595,7 +595,7 @@ function renderMain() {
     + '</div></div>';
 
   /* Disclaimer */
-  html += '<div class="disclaimer">ℹ Data is stored only in this browser\'s local storage. Nothing is sent to any server. Data is not encrypted and can be seen by anyone with access to this device. If browser cache or site data is cleared, all tracker data will be permanently lost and cannot be recovered.</div>';
+  html += '<div class="disclaimer">ℹ Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the \"Clear all data option\" to manually reset anytime. </div>';
 
   mc.innerHTML = html;
   bulkMode = false; bulkSelected = [];
@@ -656,7 +656,7 @@ function renderEmpty() {
     + '<p>Create your first habit tracker to start monitoring your progress.</p>'
     + '<button class="btn btn-green" onclick="openCreateModal()">+ Create Tracker</button>'
     + '</div>'
-    + '<div class="disclaimer">ℹ Data is stored only in this browser\'s local storage. Nothing is sent to any server. Data is not encrypted and can be seen by anyone with access to this device. If browser cache or site data is cleared, all tracker data will be permanently lost and cannot be recovered.</div>';
+    + '<div class="disclaimer">ℹ Your data is saved only in this browser on this device — nothing is uploaded or synced anywhere. It is not encrypted, so avoid storing sensitive information. If you clear your browser\'s site data or cache, everything will be lost with no way to recover it. Use the \"Clear all data\" option to manually reset anytime.</div>';
 }
 
 function openResetModal() { openModal('reset-modal'); }
